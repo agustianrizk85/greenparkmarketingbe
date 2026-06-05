@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+.vite/
+
+# Go build artifacts
+marketing-server
+*.exe
+*.test
+
+# Persisted master data (file store)
+data/
+
+# Environment files (keep the example)
+.env
+.env.*
+!.env.example
+
+# Logs & OS junk
+*.log
+.DS_Store
+Thumbs.db

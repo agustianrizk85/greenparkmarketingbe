@@ -58,11 +58,18 @@ type MarketingService interface {
 	DeleteCommand(id string) (bool, error)
 	SaveReasonCode(domain.ReasonCode) (domain.ReasonCode, error)
 	DeleteReasonCode(id string) (bool, error)
+
+	// maintenance
+	Reseed() error
+	Clear() error
 }
 
 type marketingService struct {
 	repo repository.MarketingRepository
 }
+
+func (s *marketingService) Reseed() error { return s.repo.Reseed() }
+func (s *marketingService) Clear() error  { return s.repo.Clear() }
 
 // New returns a MarketingService backed by the given repository.
 func New(repo repository.MarketingRepository) MarketingService {

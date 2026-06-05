@@ -402,3 +402,37 @@ func (r *fileRepository) UserByID(id string) (domain.User, error) {
 	}
 	return domain.User{}, ErrNotFound
 }
+
+/* ---------------------------- maintenance ---------------------------- */
+
+// Reseed restores the built-in example data set, keeping the current users.
+func (r *fileRepository) Reseed() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	users := r.st.Users
+	r.st = seedState()
+	r.st.Users = users
+	return r.persist()
+}
+
+// Clear wipes all dashboard data (empty collections + zeroed singletons),
+// keeping the current users. Empty slices (not nil) so the JSON stays [].
+func (r *fileRepository) Clear() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.st.Context = domain.Context{}
+	r.st.Funnel = []domain.FunnelStage{}
+	r.st.Spend = 0
+	r.st.KPIs = []domain.KPI{}
+	r.st.LeadQuality = domain.LeadQuality{Breakdown: []domain.LeadBreakdown{}, Stats: []domain.LeadStat{}}
+	r.st.Handover = []domain.HandoverItem{}
+	r.st.Channels = []domain.Channel{}
+	r.st.Projects = []domain.Project{}
+	r.st.Assets = []domain.Asset{}
+	r.st.IGAccounts = []domain.IGAccount{}
+	r.st.Content = domain.Content{Winning: []domain.WinningCampaign{}}
+	r.st.Commands = []domain.Command{}
+	r.st.Alerts = domain.Alerts{Red: []string{}, Yellow: []string{}, Green: []string{}}
+	r.st.ReasonCodes = []domain.ReasonCode{}
+	return r.persist()
+}

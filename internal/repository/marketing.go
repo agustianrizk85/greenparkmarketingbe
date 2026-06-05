@@ -64,4 +64,8 @@ type MarketingRepository interface {
 	Users() []domain.User
 	UserByUsername(username string) (domain.User, error)
 	UserByID(id string) (domain.User, error)
+
+	// ---- maintenance ----
+	Reseed() error // restore the built-in example data (users kept)
+	Clear() error  // wipe all dashboard data (users kept)
 }

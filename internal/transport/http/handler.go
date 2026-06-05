@@ -107,6 +107,22 @@ func (h *Handler) health(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "service": "marketing"})
 }
 
+func (h *Handler) reseed(w http.ResponseWriter, _ *http.Request) {
+	if err := h.svc.Reseed(); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "reseeded"})
+}
+
+func (h *Handler) clear(w http.ResponseWriter, _ *http.Request) {
+	if err := h.svc.Clear(); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "cleared"})
+}
+
 func (h *Handler) dashboard(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, h.svc.Dashboard())
 }

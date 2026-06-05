@@ -64,5 +64,9 @@ func NewRouter(h *Handler, allowOrigin string) http.Handler {
 	mux.HandleFunc("POST /api/reason-codes", h.requireAdmin(h.saveReasonCode))
 	mux.HandleFunc("DELETE /api/reason-codes/{id}", h.requireAdmin(h.deleteHandler(h.svc.DeleteReasonCode)))
 
+	// ---- maintenance (admin) ----
+	mux.HandleFunc("POST /api/admin/seed", h.requireAdmin(h.reseed))
+	mux.HandleFunc("POST /api/admin/clear", h.requireAdmin(h.clear))
+
 	return chain(mux, logger, cors(allowOrigin))
 }

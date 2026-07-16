@@ -148,19 +148,19 @@ func (s *marketingService) Summary() domain.Summary {
 
 /* ---- reads ---- */
 
-func (s *marketingService) Context() domain.Context           { return s.repo.Context() }
-func (s *marketingService) Funnel() []domain.FunnelStage       { return s.repo.Funnel() }
-func (s *marketingService) KPIs() []domain.KPI                 { return s.repo.KPIs() }
-func (s *marketingService) LeadQuality() domain.LeadQuality    { return s.repo.LeadQuality() }
-func (s *marketingService) Handover() []domain.HandoverItem    { return s.repo.Handover() }
-func (s *marketingService) Channels() []domain.Channel         { return s.repo.Channels() }
-func (s *marketingService) Projects() []domain.Project         { return s.repo.Projects() }
-func (s *marketingService) Assets() []domain.Asset             { return s.repo.Assets() }
-func (s *marketingService) IGAccounts() []domain.IGAccount     { return s.repo.IGAccounts() }
-func (s *marketingService) Content() domain.Content            { return s.repo.Content() }
-func (s *marketingService) Commands() []domain.Command         { return s.repo.Commands() }
-func (s *marketingService) Alerts() domain.Alerts              { return s.repo.Alerts() }
-func (s *marketingService) ReasonCodes() []domain.ReasonCode   { return s.repo.ReasonCodes() }
+func (s *marketingService) Context() domain.Context          { return s.repo.Context() }
+func (s *marketingService) Funnel() []domain.FunnelStage     { return s.repo.Funnel() }
+func (s *marketingService) KPIs() []domain.KPI               { return s.repo.KPIs() }
+func (s *marketingService) LeadQuality() domain.LeadQuality  { return s.repo.LeadQuality() }
+func (s *marketingService) Handover() []domain.HandoverItem  { return s.repo.Handover() }
+func (s *marketingService) Channels() []domain.Channel       { return s.repo.Channels() }
+func (s *marketingService) Projects() []domain.Project       { return s.repo.Projects() }
+func (s *marketingService) Assets() []domain.Asset           { return s.repo.Assets() }
+func (s *marketingService) IGAccounts() []domain.IGAccount   { return s.repo.IGAccounts() }
+func (s *marketingService) Content() domain.Content          { return s.repo.Content() }
+func (s *marketingService) Commands() []domain.Command       { return s.repo.Commands() }
+func (s *marketingService) Alerts() domain.Alerts            { return s.repo.Alerts() }
+func (s *marketingService) ReasonCodes() []domain.ReasonCode { return s.repo.ReasonCodes() }
 
 func (s *marketingService) ProjectByName(name string) (domain.Project, error) {
 	return s.repo.ProjectByName(name)
@@ -168,8 +168,8 @@ func (s *marketingService) ProjectByName(name string) (domain.Project, error) {
 
 /* ---- singleton / whole-value writes ---- */
 
-func (s *marketingService) SetContext(c domain.Context) error        { return s.repo.SetContext(c) }
-func (s *marketingService) SetSpend(v float64) error                 { return s.repo.SetSpend(v) }
+func (s *marketingService) SetContext(c domain.Context) error { return s.repo.SetContext(c) }
+func (s *marketingService) SetSpend(v float64) error          { return s.repo.SetSpend(v) }
 func (s *marketingService) SetLeadQuality(lq domain.LeadQuality) error {
 	return s.repo.SetLeadQuality(lq)
 }

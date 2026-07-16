@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"greenpark/marketing/internal/auth"
+	"greenpark/marketing/internal/authmw"
 	"greenpark/marketing/internal/config"
 	"greenpark/marketing/internal/repository"
 	"greenpark/marketing/internal/service"
@@ -44,8 +44,15 @@ func main() {
 		log.Println("marketing: using file store")
 	}
 	svc := service.New(repo)
-	authSvc := auth.New(repo, cfg.SessionTTL)
-	handler := httptransport.NewHandler(svc, authSvc)
+	verifier, err := authmw.New(authmw.Options{
+		JWKSURL:    cfg.AuthJWKSURL,
+		Department: "marketing",
+		Issuer:     cfg.AuthIssuer,
+	})
+	if err != nil {
+		log.Fatalf("marketing: auth verifier: %v", err)
+	}
+	handler := httptransport.NewHandler(svc, verifier)
 	router := httptransport.NewRouter(handler, cfg.AllowOrigin)
 
 	srv := &http.Server{

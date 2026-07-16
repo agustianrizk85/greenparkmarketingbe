@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"greenpark/marketing/internal/auth"
+	"greenpark/marketing/internal/authmw"
 	"greenpark/marketing/internal/domain"
 	"greenpark/marketing/internal/repository"
 	"greenpark/marketing/internal/service"
@@ -15,13 +15,15 @@ import (
 
 // Handler holds the dependencies for the HTTP handlers.
 type Handler struct {
-	svc  service.MarketingService
-	auth *auth.Service
+	svc    service.MarketingService
+	verify *authmw.Verifier
+	hub    *wsHub
 }
 
-// NewHandler creates a Handler bound to the service and auth service.
-func NewHandler(svc service.MarketingService, authSvc *auth.Service) *Handler {
-	return &Handler{svc: svc, auth: authSvc}
+// NewHandler creates a Handler bound to the service and the master-auth
+// token verifier.
+func NewHandler(svc service.MarketingService, verify *authmw.Verifier) *Handler {
+	return &Handler{svc: svc, verify: verify, hub: newWSHub()}
 }
 
 /* ---------------------------- auth plumbing ---------------------------- */
@@ -29,6 +31,18 @@ func NewHandler(svc service.MarketingService, authSvc *auth.Service) *Handler {
 type ctxKey int
 
 const userCtxKey ctxKey = 0
+
+// deptCode is this service's department code in the master-auth token.
+const deptCode = "marketing"
+
+// userFromClaims maps a verified master-auth token to this service's User shape.
+func userFromClaims(c authmw.Claims) domain.User {
+	role := domain.RoleViewer
+	if c.IsAdmin(deptCode) {
+		role = domain.RoleAdmin
+	}
+	return domain.User{ID: c.Subject, Username: c.Username, Name: c.Name, Role: role}
+}
 
 func bearer(r *http.Request) string {
 	h := r.Header.Get("Authorization")
@@ -41,12 +55,16 @@ func bearer(r *http.Request) string {
 // requireAuth wraps a handler, rejecting requests without a valid session.
 func (h *Handler) requireAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u, err := h.auth.Validate(bearer(r))
+		claims, err := h.verify.Verify(bearer(r))
 		if err != nil {
 			writeError(w, http.StatusUnauthorized, err.Error())
 			return
 		}
-		next(w, r.WithContext(context.WithValue(r.Context(), userCtxKey, u)))
+		if !claims.CanAccess(deptCode) {
+			writeError(w, http.StatusForbidden, "tidak punya akses ke departemen "+deptCode)
+			return
+		}
+		next(w, r.WithContext(context.WithValue(r.Context(), userCtxKey, userFromClaims(claims))))
 	}
 }
 
@@ -73,29 +91,8 @@ func decode[T any](w http.ResponseWriter, r *http.Request) (T, bool) {
 
 /* ---------------------------- auth handlers ---------------------------- */
 
-type loginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
-	req, ok := decode[loginReq](w, r)
-	if !ok {
-		return
-	}
-	token, user, err := h.auth.Login(req.Username, req.Password)
-	if err != nil {
-		writeError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
-	writeJSON(w, http.StatusOK, map[string]any{"token": token, "user": user})
-}
-
-func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	h.auth.Logout(bearer(r))
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
-}
-
+// me returns the caller derived from the verified master-auth token. Login,
+// logout and refresh are owned by the master auth service, not this backend.
 func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
 	u, _ := r.Context().Value(userCtxKey).(domain.User)
 	writeJSON(w, http.StatusOK, u)

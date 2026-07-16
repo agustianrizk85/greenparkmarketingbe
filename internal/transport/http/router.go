@@ -13,11 +13,12 @@ func NewRouter(h *Handler, allowOrigin string) http.Handler {
 
 	// ---- public ----
 	mux.HandleFunc("GET /api/health", h.health)
-	mux.HandleFunc("POST /api/auth/login", h.login)
+	// Realtime push: validates its own ?token= (browsers can't set WS headers).
+	mux.HandleFunc("GET /api/ws", h.ws)
 
 	// ---- authenticated session ----
+	// Login/logout/refresh are owned by the master auth service (SSO).
 	mux.HandleFunc("GET /api/auth/me", h.requireAuth(h.me))
-	mux.HandleFunc("POST /api/auth/logout", h.requireAuth(h.logout))
 
 	// ---- reads (authenticated) ----
 	mux.HandleFunc("GET /api/dashboard", h.requireAuth(h.dashboard))
@@ -68,5 +69,7 @@ func NewRouter(h *Handler, allowOrigin string) http.Handler {
 	mux.HandleFunc("POST /api/admin/seed", h.requireAdmin(h.reseed))
 	mux.HandleFunc("POST /api/admin/clear", h.requireAdmin(h.clear))
 
-	return chain(mux, logger, cors(allowOrigin))
+	// bumpOnWrite fans a realtime revision out to every connected dashboard after
+	// each successful write, so new data appears without a manual refresh.
+	return chain(mux, logger, bumpOnWrite(h.hub), cors(allowOrigin))
 }

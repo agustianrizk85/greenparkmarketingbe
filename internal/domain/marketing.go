@@ -88,8 +88,8 @@ type HandoverItem struct {
 type Channel struct {
 	EntID  string  `json:"_id"`
 	Name   string  `json:"name"`
-	Group  string  `json:"group"`  // Paid | Owned | Trust | Offline
-	Spend  float64 `json:"spend"`  // Rupiah
+	Group  string  `json:"group"` // Paid | Owned | Trust | Offline
+	Spend  float64 `json:"spend"` // Rupiah
 	Leads  int     `json:"leads"`
 	MQL    int     `json:"mql"`
 	CPL    float64 `json:"cpl"`    // cost per lead (Rupiah)
@@ -200,21 +200,21 @@ type Summary struct {
 
 // Dashboard is the full payload consumed by the front-end in a single call.
 type Dashboard struct {
-	Context     Context       `json:"context"`
-	Funnel      []FunnelStage `json:"funnel"`
-	Spend       float64       `json:"spend"`
-	KPIs        []KPI         `json:"kpis"`
-	LeadQuality LeadQuality   `json:"leadQuality"`
+	Context     Context        `json:"context"`
+	Funnel      []FunnelStage  `json:"funnel"`
+	Spend       float64        `json:"spend"`
+	KPIs        []KPI          `json:"kpis"`
+	LeadQuality LeadQuality    `json:"leadQuality"`
 	Handover    []HandoverItem `json:"handover"`
-	Channels    []Channel     `json:"channels"`
-	Projects    []Project     `json:"projects"`
-	Assets      []Asset       `json:"assets"`
-	IGAccounts  []IGAccount   `json:"igAccounts"`
-	Content     Content       `json:"content"`
-	Commands    []Command     `json:"commands"`
-	Alerts      Alerts        `json:"alerts"`
-	ReasonCodes []ReasonCode  `json:"reasonCodes"`
-	Summary     Summary       `json:"summary"`
+	Channels    []Channel      `json:"channels"`
+	Projects    []Project      `json:"projects"`
+	Assets      []Asset        `json:"assets"`
+	IGAccounts  []IGAccount    `json:"igAccounts"`
+	Content     Content        `json:"content"`
+	Commands    []Command      `json:"commands"`
+	Alerts      Alerts         `json:"alerts"`
+	ReasonCodes []ReasonCode   `json:"reasonCodes"`
+	Summary     Summary        `json:"summary"`
 }
 
 // Entity is implemented by every CRUD collection element. The synthetic _id is
